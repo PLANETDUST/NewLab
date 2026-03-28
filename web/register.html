@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 | 订阅者管理系统</title>
+    <style>
+        /* --- CSS 变量 (Variables) - 来源于登录页 --- */
+        :root {
+            --primary-color: #0056b3;
+            /* 新闻蓝 */
+            --primary-hover: #004494;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --label-color: #555;
+            --border-color: #dee2e6;
+            --radius: 6px;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- 基础重置与布局 --- */
+        body {
+            font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- 顶部 Header --- */
+        header {
+            background: var(--card-bg);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--primary-color);
+        }
+
+        /* --- 主内容区 (Main) --- */
+        main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- 注册卡片 (Card) --- */
+        .register-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .register-card h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        /* --- 表单元素 --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--label-color);
+        }
+
+        /* 统一输入框/控件样式 */
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        /* --- 验证码布局：对齐修正 --- */
+        .captcha-group {
+            display: flex;
+            gap: 10px;
+            /* 关键：使用 align-items: center; 来垂直居中对齐组内的元素 */
+            align-items: center;
+        }
+
+        .captcha-input {
+            flex: 1;
+        }
+
+        .captcha-img-wrapper {
+            width: 120px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            /* 移除 cursor: pointer 因为没有 JS 刷新功能 */
+            overflow: hidden;
+            background-color: #f8f8f8;
+            /* 关键：移除 margin-top，让 align-items: center; 生效 */
+            margin-top: 0;
+        }
+
+        .captcha-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* --- 主要按钮 --- */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        /* --- 底部链接 --- */
+        .login-link {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 25px;
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* --- 页脚 --- */
+        footer {
+            background: var(--card-bg);
+            color: #999;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 12px;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>订阅者 <span style="font-weight:300">管理</span> | 账户注册</h1>
+    </header>
+
+    <main>
+        <section class="register-card">
+            <h2>创建您的新账户</h2>
+
+            <form>
+
+                <div class="form-group">
+                    <label for="username">用户名：</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">邮箱：</label>
+                    <input type="email" id="email" name="mail" class="form-control" placeholder="请输入邮箱" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码：</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="设置您的密码"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">确认密码：</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                        placeholder="请再次输入密码" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="captchacode">验证码</label>
+                    <div class="captcha-group">
+                        <div class="captcha-input">
+                            <input type="text" id="captcha_code" name="captcha" class="form-control" placeholder="输入验证码"
+                                required>
+                        </div>
+
+                        <div class="captcha-img-wrapper" title="验证码图片">
+                            <img id='captcha' src="http://www.new.com:8081/captcha.php" alt="验证码">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="register()">
+                    立即注册
+                </button>
+
+                <p class="login-link">已经有账户? <a href="login.html">前往登录</a></p>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>版权所有 © 2026 订阅者管理系统 | 技术支持：IT 服务中心</p>
+    </footer>
+</body>
+
+</html>
+<script src="./js/jquery-4.0.0.min.js"></script>
+<script>
+    $(function () { 
+        $('#captcha').click(function(){
+            $('#captcha').attr('src',"http://www.new.com:8081/captcha.php?t="+Math.random())
+        })
+    })
+    function register(){
+        //获取 用户输入
+        let username = $('#username').val();
+        let password = $('#password').val();
+        let confirm_password = $('#confirm_password').val();
+        let email = $('#email').val();
+        let captcha = $('#captcha_code').val();
+        //处理数据
+        let data ={
+            username:username,
+            password:password,
+            confirmPassword:confirm_password,
+            email:email,
+            captcha:captcha
+        }
+        //ajax 异步请求发包
+        $.ajax(
+            {
+                type:'post',
+                url:"http://www.new.com:8081/register.php",
+                xhrFields:{withCredentials:true},
+                data:data,
+                dataType:'json',
+                success:function(res){
+                    if(res.code ==200){
+                        alert(res.msg)
+                        location = "http://www.new.com:8080/login.html"
+                    }else{
+                        alert(res.msg)
+                        $('#captcha').attr('src',"http://www.new.com:8081/captcha.php?t="+Math.random())
+                        $('#captcha_code').val("")
+                    }
+                },
+                error:function(err){
+                   alert("ajax请求失败")
+                }
+            }
+        )
+    }
+</script>

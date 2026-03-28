@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加用户 | 新闻资讯平台</title>
+    <style>
+        /* --- 核心CSS变量（与edit_user.html保持一致）--- */
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary-color: #7c3aed;
+            --secondary-light: #ede9fe;
+            --accent-color: #0ea5e9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.12);
+            --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s ease;
+        }
+
+        /* --- 基础重置 --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            line-height: 1.7;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- 顶部导航栏 --- */
+        .top-nav {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 0 24px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 26px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        /* --- 内容容器 --- */
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 95%;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-separator {
+            margin: 0 4px;
+        }
+
+        /* 页面标题 */
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        .page-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 32px;
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        /* --- 添加用户表单卡片 --- */
+        .add-form-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .form-header {
+            padding: 30px;
+            border-bottom: 1px solid var(--border-light);
+            background: linear-gradient(90deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+        }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* 表单内容 */
+        .form-content {
+            padding: 40px;
+        }
+
+        /* 表单组 */
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .required::after {
+            content: '*';
+            color: var(--danger-color);
+            margin-left: 4px;
+        }
+
+        /* 输入框样式 */
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-family: inherit;
+            transition: var(--transition);
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e293b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+            padding-right: 50px;
+            cursor: pointer;
+        }
+
+        /* 头像上传区域 */
+        .avatar-upload-container {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            text-align: center;
+            transition: var(--transition);
+            background: var(--bg-color);
+            position: relative;
+        }
+
+        .avatar-upload-container:hover {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.02);
+        }
+
+        .file-input {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        /* 头像预览 */
+        .avatar-preview-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 默认头像 */
+        .default-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid white;
+            box-shadow: var(--shadow-md);
+            font-size: 48px;
+            color: var(--primary-color);
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger-color);
+        }
+
+        /* 表单操作栏 */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px;
+            border-top: 1px solid var(--border-light);
+            background: var(--bg-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--bg-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* 状态提示 */
+        .status-message {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+
+        .status-message.info {
+            background: rgba(37, 99, 235, 0.1);
+            border-left: 4px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .status-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        /* 密码提示 */
+        .password-hint {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .password-hint::before {
+            content: '💡';
+        }
+
+        /* --- 页脚 --- */
+        .footer {
+            background: var(--text-color);
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 100%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* --- 响应式设计 --- */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 0 20px;
+                height: 64px;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .form-header,
+            .form-content,
+            .form-actions {
+                padding: 25px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .flex-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-container {
+                width: 100%;
+                padding: 20px 12px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .form-header,
+            .form-content,
+            .form-actions {
+                padding: 20px;
+            }
+            
+            .add-form-card {
+                border-radius: var(--radius-md);
+            }
+            
+            .back-button .button-text {
+                display: none;
+            }
+            
+            .back-button {
+                padding: 8px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* --- 动画效果 --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .add-form-card {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        /* 工具类 */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .flex-row .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="top-nav">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">👥</span>
+            <span>用户管理系统</span>
+        </a>
+        
+        <!-- 返回按钮 -->
+        <a href="users.html" class="back-button">
+            <span>←</span>
+            <span class="button-text">返回用户列表</span>
+        </a>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="content-container">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <a href="index.html">首页</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="user.html">用户管理</a>
+            <span class="breadcrumb-separator">/</span>
+            <span>添加用户</span>
+        </div>
+
+        <!-- 页面标题 -->
+        <h1 class="page-title">添加新用户</h1>
+
+        <!-- 状态提示 -->
+        <div class="status-message info">
+            <strong>提示：</strong> 请填写以下信息以添加新用户。标有 <span style="color: var(--danger-color)">*</span> 的字段为必填项。
+        </div>
+
+        <!-- 添加用户表单卡片 -->
+        <article class="add-form-card">
+            <!-- 表单头部 -->
+            <div class="form-header">
+                <h2 class="form-title">创建新用户</h2>
+            </div>
+            
+            <!-- 表单内容 -->
+            <form class="form-content">
+                <!-- 基本信息行 -->
+                <div class="flex-row">
+                    <!-- 用户名 -->
+                    <div class="form-group">
+                        <label for="username" class="form-label required">用户名</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="请输入用户名" required>
+                    </div>
+                    
+                    <!-- 邮箱 -->
+                    <div class="form-group">
+                        <label for="email" class="form-label required">邮箱地址</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="请输入邮箱地址" required>
+                    </div>
+                </div>
+
+                <!-- 姓名信息行 -->
+                
+                
+                <!-- 头像上传 -->
+                <div class="form-group">
+                    <label class="form-label">用户头像</label>
+                    <div class="avatar-upload-container">
+                        <div class="upload-icon">👤</div>
+                        <div class="upload-text">点击下方按钮选择头像（可选）</div>
+                        <input type="file" class="file-input" id="avatar" name="avatar" accept="image/*" onchange="uploadFile()">
+                        <label for="avatar" class="file-input-label">选择头像</label>
+                        <div class="upload-hint">支持 JPG、PNG 格式，建议尺寸 400x400px，最大 2MB</div>
+                    </div>
+                    <!-- 头像预览 -->
+                    <div class="avatar-preview-container">
+                        <img class="user-avatar" src="http://www.new.com:8081/upload/1765283085.jpg">
+                    </div>
+                </div>
+                
+                <!-- 角色与状态 -->
+                <div class="flex-row">
+                    <!-- 用户角色 -->
+                    <div class="form-group">
+                        <label for="role" class="form-label required">用户角色</label>
+                        <select id="role" name="role" class="form-select" required>
+                            <option value="" disabled selected>请选择用户角色</option>
+                            <option value="admin">管理员</option>
+                            <option value="user">普通用户</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 账户状态 -->
+                    <div class="form-group">
+                        <label for="status" class="form-label required">账户状态</label>
+                        <select id="status" name="status" class="form-select" required>
+                            <option value="active" selected>激活</option>
+                            <option value="banned">已禁用</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 初始密码设置 -->
+                <div class="form-group">
+                    <h3 class="form-label" style="font-size: 18px; margin-bottom: 15px;">初始密码设置</h3>
+                    
+                    <div class="flex-row">
+                        <!-- 密码 -->
+                        <div class="form-group">
+                            <label for="password" class="form-label required">密码</label>
+                            <input type="password" id="password" name="password" class="form-input" placeholder="请输入密码" required>
+                            <div class="password-hint">密码长度至少8位，包含字母和数字</div>
+                        </div>
+                        
+                        <!-- 确认密码 -->
+                        <div class="form-group">
+                            <label for="confirm_password" class="form-label required">确认密码</label>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="请再次输入密码" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 表单操作栏 -->
+                <div class="form-actions">
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="addUser()">
+                            <span>➕</span>
+                            <span>添加用户</span>
+                        </button>
+                        <a href="users.html" class="action-btn secondary">
+                            <span>↩️</span>
+                            <span>取消返回</span>
+                        </a>
+                    </div>
+                    
+                    <div class="form-hint">
+                        添加后用户将收到包含登录信息的电子邮件
+                    </div>
+                </div>
+            </form>
+        </article>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <a href="index.html" class="footer-logo">
+                <span>📰</span>
+                <span>新闻资讯平台</span>
+            </a>
+            
+            <div class="footer-links">
+                <a href="#" class="footer-link">关于我们</a>
+                <a href="#" class="footer-link">联系我们</a>
+                <a href="#" class="footer-link">隐私政策</a>
+                <a href="#" class="footer-link">使用条款</a>
+                <a href="#" class="footer-link">帮助中心</a>
+            </div>
+            
+            <div class="footer-copyright">
+                <p>版权所有 © 2025 新闻资讯平台。保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+<script src="./js/jquery-3.7.1.min.js"></script>
+<script>
+     function uploadFile() {
+        //新建 表单 
+        let formData = new FormData();
+        //获取 上传 的 文件
+        let file = $('#avatar')[0].files[0]
+        //讲 文件 追加到 表单
+        formData.append('file', file)
+        $.ajax(
+            {
+                type: "POST",
+                url: "http://www.new.com:8081/uploadFile.php",
+                xhrFields: { withCredentials: true },
+                data: formData,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                success: (result) => {
+                    if (result.code == 200) {
+                        alert(result.msg)
+                        $('.user-avatar').attr('src', result.path)
+                        $('.avatar-preview').attr('src', result.path)
+                    } else {
+                        alert(result.msg)
+                    }
+                },
+                error: (error) => {
+                    alert('请求失败')
+                }
+            }
+
+        )
+    }
+    function addUser(){ 
+        let username = $('#username').val()
+        let email = $('#email').val()
+        let imgUrl = $('.user-avatar').attr('src')
+        let role = $('#role').val()
+        let status = $('#status').val()
+        let password =$('#password').val()
+        let confirm_password = $('#confirm_password').val()
+        data = {
+            username: username,
+            email: email,
+            imgUrl: imgUrl,
+            role: role,
+            status: status,
+            password: password,
+            confirm_password: confirm_password,
+        }
+        $.ajax({
+            // 请求方式：GET
+            type: "POST",
+            // 请求地址
+            url: "http://www.new.com:8081/addUser.php",
+            // 携带cookie
+            xhrFields: { withCredentials: true },
+            // 要发送的数据
+            data: data,
+            // 预期服务器返回的数据格式：JSON
+            dataType: "json",
+            //处理 请求成功
+            success: (result) => {
+                // 根据服务器返回的状态码处理响应
+                if (result.code == 200) {
+                    // 登录成功 并且 用户角色为管理员   ：显示成功消息并跳转到管理员界面
+                   alert(result.msg)
+                   location = "./users.html"
+                } else {
+                    // 登录失败：显示失败消息并刷新页面
+                    alert(result.msg)
+                    location = `./add_user.html`
+                }
+            },
+            //处理 请求失败
+            // 网络错误或服务器无响应时提示
+            error: (error) => {
+                alert("请求失败")
+            }
+        })
+    }
+
+</script>

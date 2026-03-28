@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻详情 | 新闻资讯平台</title>
+    <style>
+        /* --- 统一CSS变量（整合两份代码的优质变量，保持风格一致）--- */
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary-color: #7c3aed;
+            --secondary-light: #ede9fe;
+            --accent-color: #0ea5e9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s ease;
+        }
+
+        /* --- 基础重置 --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            line-height: 1.7;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* 核心：设置body为flex左右布局 */
+            display: flex;
+        }
+
+        /* --- 左侧菜单栏（借鉴新闻管理系统，保持风格统一）--- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo-container {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+
+        .user-info {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: var(--shadow-sm);
+            /* 备用图，防止原地址失效 */
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .nav-text {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* --- 右侧新闻详情主内容容器（核心：适配左侧菜单栏布局）--- */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 菜单切换按钮（小屏适配） */
+        .menu-toggle-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            display: none;
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1001;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* --- 新闻详情核心样式（保留原有质感，适配新布局）--- */
+        .content-container {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 1400px;
+            width: 95%;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-separator {
+            margin: 0 4px;
+        }
+
+        /* 新闻详情卡片 */
+        .news-detail-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .news-header {
+            padding: 40px 40px 20px;
+            border-bottom: 1px solid var(--border-light);
+            background: linear-gradient(90deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+        }
+
+        .news-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .news-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .meta-icon {
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .meta-label {
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        /* 新闻图片 */
+        .news-image-container {
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .news-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .news-image:hover {
+            transform: scale(1.02);
+        }
+
+        /* 新闻内容 */
+        .news-content {
+            padding: 40px;
+            font-size: 17px;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        /* 新闻操作栏 */
+        .news-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-top: 1px solid var(--border-light);
+            background: var(--bg-color);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* 评论区域 */
+        .comments-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* 评论列表 */
+        .comments-list {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .comment-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+        .comment-item:hover {
+            background: rgba(219, 234, 254, 0.1);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: 700;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .comment-time {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .comment-content {
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        /* 评论表单 */
+        .comment-form-container {
+            padding: 30px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-family: inherit;
+            transition: var(--transition);
+            background: var(--card-bg);
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .submit-btn {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        /* --- 页脚 --- */
+        .footer {
+            background: var(--text-color);
+            color: white;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* --- 响应式设计（适配小屏设备）--- */
+        @media (max-width: 1024px) {
+            .menu-toggle-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .news-title {
+                font-size: 32px;
+            }
+
+            .news-content {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                width: 98%;
+                padding: 30px 15px;
+            }
+
+            .news-title {
+                font-size: 28px;
+            }
+
+            .news-header,
+            .news-content,
+            .news-actions {
+                padding: 25px;
+            }
+
+            .news-meta {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .form-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .submit-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-container {
+                width: 100%;
+                padding: 20px 12px;
+            }
+
+            .news-title {
+                font-size: 24px;
+            }
+
+            .news-header,
+            .news-content,
+            .news-actions {
+                padding: 20px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* --- 动画效果 --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .news-detail-card,
+        .comments-section {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .comments-section {
+            animation-delay: 0.4s;
+        }
+
+        .comment-item {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 左侧菜单栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">📰</span>
+                <span>新闻管理系统</span>
+            </a>
+        </div>
+        <div class="user-info">
+            <img class="user-avatar" src="#">
+            <div class="user-details">
+                <div class="username" id="usernameDisplay">管理员</div>
+                <div class="user-role" id="userRoleDisplay">超级管理员</div>
+            </div>
+        </div>
+        <nav class="nav-menu" id="navMenu">
+            <a href="home.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">系统仪表盘</span>
+            </a>
+            <a href="review.html" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-text">评论管理</span>
+            </a>
+            <a href="./files.html" class="nav-item">
+                <span class="nav-icon">🏷️</span>
+                <span class="nav-text">文件管理</span>
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">用户管理</span>
+            </a>
+            <a href="logs.html" class="nav-item">
+                <span class="nav-icon">⏱️</span>
+                <span class="nav-text">操作日志</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="logoutBtn">
+                <span>🚪</span>
+                <span>退出登录</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 右侧新闻详情主内容 -->
+    <div class="main-content">
+        <!-- 小屏菜单切换按钮 -->
+        <button class="menu-toggle-btn" id="menuToggleBtn" onclick="toggleSidebar()">
+            &#9776;
+        </button>
+
+        <main class="content-container">
+            <div class="breadcrumb">
+                <a href="index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>新闻详情</span>
+            </div>
+
+            <!-- 新闻详情卡片 -->
+            <article class="news-detail-card">
+                <div class="news-header">
+                    <h1 class="news-title">AIGC技术:内容生成效率革命</h1>
+                    <div class="news-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">👤</span>
+                            <span class="meta-label">作者：</span>
+                            <span class="newauther">admin</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span class="meta-label">发布时间：</span>
+                            <span class="newtime">2024-11-20 14:30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 新闻图片 -->
+                <figure class="news-image-container">
+                    <img class="news-image"
+                        src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                        alt="图片加载失败">
+                </figure>
+
+                <!-- 新闻内容 -->
+                <div class="news-content">
+                    深度解析AI生成内容（AIGC）在媒体、设计和营销领域带来的效率和创造力飞跃。<br><br>
+                    随着人工智能技术的飞速发展，AIGC（Artificial Intelligence Generated
+                    Content）已经从概念走向落地，成为推动各行各业内容生产变革的核心力量。与传统的人工创作相比，AIGC具有高效、低成本、可规模化的显著优势，能够在短时间内生成大量高质量的文本、图片、视频、音频等多种形式的内容。<br><br>
+                    在媒体行业，AIGC已经被广泛应用于新闻稿撰写、数据可视化、专题报道辅助等场景。许多主流媒体机构都引入了AIGC工具，用于快速生成突发事件的快讯、财经数据的解读报告，极大地提升了新闻生产的效率，让编辑记者能够将更多精力投入到深度调查和优质内容的创作中。<br><br>
+                    在设计和营销领域，AIGC更是展现出了惊人的潜力。设计师可以借助AIGC工具快速生成多种创意方案，大幅缩短设计周期；营销人员则可以利用AIGC根据不同的目标人群、不同的投放渠道，定制化生成精准的营销文案和宣传物料，提升营销转化效果。<br><br>
+                    当然，AIGC的发展也面临着一些挑战，比如内容原创性、版权归属、信息真实性等问题。未来，随着技术的不断完善和相关法律法规的逐步健全，AIGC必将在规范中实现更大的发展，为内容产业带来更加深远的变革。
+                </div>
+
+                <!-- 新闻操作栏 -->
+                <div class="news-actions">
+                    <a href="edit_new.html" id="editor" class="action-btn">
+                        <span>✏️</span>
+                        <span>编辑新闻</span>
+                    </a>
+                    <a href="home.html" class="action-btn">
+                        <span>←</span>
+                        <span>返回列表</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- 评论区域 -->
+            <section class="comments-section">
+                <div class="section-header">
+                    <h2 class="section-title">评论</h2>
+                </div>
+
+                <!-- 评论列表 -->
+                <div class="comments-list">
+                </div>
+
+                <!-- 提交评论 -->
+                <div class="comment-form-container">
+                    <h3 class="form-title">发表评论</h3>
+                    <div class="form-group">
+                        <label for="comment" class="form-label">评论内容</label>
+                        <textarea id="comment" name="comment" class="form-textarea" placeholder="请输入您的评论内容..."
+                            required></textarea>
+                    </div>
+
+                    <div class="form-footer">
+                        <div class="form-hint">评论内容需遵守平台规范,支持Markdown格式</div>
+                        <button class="submit-btn" onclick="addReview()">提交评论</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <a href="index.html" class="footer-logo">
+                    <span>📰</span>
+                    <span>新闻资讯平台</span>
+                </a>
+
+                <div class="footer-links">
+                    <a href="#" class="footer-link">关于我们</a>
+                    <a href="#" class="footer-link">联系我们</a>
+                    <a href="#" class="footer-link">隐私政策</a>
+                    <a href="#" class="footer-link">使用条款</a>
+                    <a href="#" class="footer-link">广告合作</a>
+                </div>
+
+                <div class="footer-copyright">
+                    <p>版权所有 © 2026 新闻资讯平台。保留所有权利。</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+</html>
+<script src="js/jquery-4.0.0.min.js"></script>
+<script>
+    $(function () {
+        showUserInfo();
+        getNewById();
+        getReviewByNid();
+        addNid();
+    })
+    function cookieToJson(cookieString) {
+        // 处理空字符串
+        if (!cookieString || typeof cookieString !== 'string') {
+            return {};
+        }
+        // 分割 Cookie 字符串
+        const cookies = cookieString.split(';');
+        const result = {};
+        // 遍历每个 Cookie
+        for (const cookie of cookies) {
+            // 跳过空字符串
+            if (!cookie.trim()) {
+                continue;
+            }
+            // 查找第一个等号位置
+            const equalsIndex = cookie.indexOf('=');
+
+            // 如果没有等号，跳过这个 Cookie
+            if (equalsIndex === -1) {
+                continue;
+            }
+            // 提取键和值
+            const name = cookie.substring(0, equalsIndex).trim();
+            let value = cookie.substring(equalsIndex + 1).trim();
+            // 处理可能的 URL 编码
+            try {
+                value = decodeURIComponent(value);
+            } catch (e) {
+                // 如果解码失败，使用原始值
+                console.warn(`Failed to decode cookie value: ${value}`, e);
+            }
+            // 添加到结果对象
+            result[name] = value;
+        }
+        return result;
+    }
+    function showUserInfo() {
+        let cookie = cookieToJson(document.cookie)
+        let username = cookie.username;
+        let role = cookie.role;
+        let imgUrl = cookie.imgUrl;
+        $('.user-avatar').attr('src', imgUrl);
+        $('.username').text(username);
+        $('.user-role').text(role);
+    }
+    function getNewById() {
+        // 获得浏览器地址栏的参数
+        const params = new URLSearchParams(window.location.search);
+        let nid = params.get('nid')
+        //ajax 发包
+        $.ajax(
+            {
+                url: 'http://www.new.com:8081/getNewById.php',
+                type: 'get',
+                data: {
+                    nid: nid
+                },
+                dataType: 'json',
+                success: function (result) {
+                    if (result.code == 200) {
+                        console.log(result.data);
+                        let newData = result.data[0];
+                        $('.news-title').html(newData.title)
+                        $('.newauther').html(newData.username)
+                        $('.newtime').html(newData.newTime)
+                        $('.news-image').attr('src', newData.newImgUrl)
+                        $('.news-content').html(newData.content)
+                    }
+                },
+                error: function (error) {
+                    alert('AJAX请求失败')
+                }
+
+            }
+        )
+    }
+    function addReview() {
+        let review = $('#comment').val()
+        let uid = cookieToJson(document.cookie).uid
+        let nid = new URLSearchParams(window.location.search).get('nid');
+        $.ajax(
+            {
+                url: 'http://www.new.com:8081/addReview.php',
+                type: 'post',
+                data: {
+                    uid: uid,
+                    nid: nid,
+                    review: review
+                },
+                dataType: 'json',
+                success: function (result) {
+                    if (result.code == 200) {
+                        alert('评论成功')
+                        $('#comment').val("")
+                        getReviewByNid();
+                    }
+                },
+                error: function (error) {
+                    alert('AJAX请求失败')
+                }
+            }
+        )
+    }
+    function getReviewByNid() {
+        let nid = new URLSearchParams(window.location.search).get('nid');
+        $.ajax(
+            {
+                url: 'http://www.new.com:8081/getReviewByNid.php',
+                type: 'get',
+                data: {
+                    nid: nid
+                },
+                dataType: 'json',
+                success: function (result) {
+                    if (result.code == 200) {
+                        let content = "";
+                        for (const item of result.data) {
+                            content +=
+                                `
+                        <div class="comment-item">
+                        <div class="comment-header">
+                                <div class="comment-author">
+                                    <div class="author-info">
+                                        <div class="author-name">${item.username}</div>
+                                        <div class="comment-time">${item.reviewTime}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                ${item.review}
+                            </div>
+                         </div>
+                        `
+                        }
+                        $('.comments-list').html(content)
+                    } 
+
+                },
+                error: function (error) {
+                    alert('AJAX请求失败')
+                }
+            }
+        )
+    }
+    function addNid(){
+        let nid = new URLSearchParams(window.location.search).get('nid');
+        $('#editor').attr('href',`/edit_new.html?nid=${nid}`)
+    }
+
+</script>
