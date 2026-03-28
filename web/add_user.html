@@ -734,8 +734,8 @@
                     <div class="form-group">
                         <label for="status" class="form-label required">账户状态</label>
                         <select id="status" name="status" class="form-select" required>
-                            <option value="active" selected>激活</option>
-                            <option value="banned">已禁用</option>
+                            <option value="true" selected>激活</option>
+                            <option value="false">已禁用</option>
                         </select>
                     </div>
                 </div>
@@ -763,7 +763,7 @@
                 <!-- 表单操作栏 -->
                 <div class="form-actions">
                     <div class="action-buttons">
-                        <button class="action-btn primary" onclick="addUser()">
+                        <button type="button" class="action-btn primary" onclick="addUser()">
                             <span>➕</span>
                             <span>添加用户</span>
                         </button>
@@ -774,7 +774,7 @@
                     </div>
                     
                     <div class="form-hint">
-                        添加后用户将收到包含登录信息的电子邮件
+                        添加后可在用户列表中立即查看
                     </div>
                 </div>
             </form>
@@ -804,7 +804,7 @@
     </footer>
 </body>
 </html>
-<script src="./js/jquery-3.7.1.min.js"></script>
+<script src="./js/jquery-4.0.0.min.js"></script>
 <script>
      function uploadFile() {
         //新建 表单 
@@ -816,7 +816,7 @@
         $.ajax(
             {
                 type: "POST",
-                url: "http://www.new.com:8081/uploadFile.php",
+                url: "http://www.new.com:8081/upload.php",
                 xhrFields: { withCredentials: true },
                 data: formData,
                 dataType: "json",
@@ -825,8 +825,9 @@
                 success: (result) => {
                     if (result.code == 200) {
                         alert(result.msg)
-                        $('.user-avatar').attr('src', result.path)
-                        $('.avatar-preview').attr('src', result.path)
+                        const uploadedUrl = result.data.url
+                        $('.user-avatar').attr('src', uploadedUrl)
+                        $('.avatar-preview').attr('src', uploadedUrl)
                     } else {
                         alert(result.msg)
                     }

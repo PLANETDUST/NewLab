@@ -1,6 +1,6 @@
 <?php
-include __DIR__ . "/cors.php";
-include __DIR__ . "/public/DBTool.php";
+include __DIR__ . "/public/cors.php";
+include __DIR__ . "/public/dataBaseTool.php";
 
 session_start();
 $username = $_REQUEST['username'];

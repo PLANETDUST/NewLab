@@ -1,245 +1,322 @@
-# 新闻资讯管理系统
+# 新闻资讯 Web 安全靶场
 
-基于原生 HTML、CSS、JavaScript、jQuery、PHP 和 MySQL 构建的新闻资讯管理系统，包含新闻浏览、新闻发布、评论管理、用户管理、文件上传下载、验证码校验和邮箱找回密码等完整业务流程。
+这不是一个面向生产环境的“正规管理系统”，而是一个用新闻资讯业务外壳包装出来的 **Web 漏洞练习项目 / 靶场项目**。  
+它的重点不是业务有多规范，而是：
 
-这个项目采用前后端分离的组织方式：
+- 入口足够典型：登录、注册、找回密码、新闻发布、评论、文件上传、后台页面
+- 链路足够完整：前端页面、PHP 接口、MySQL、Cookie、Session、上传目录都在
+- 代码足够直白：适合拿来做代码审计、漏洞复现、课堂演示和本地攻防练习
 
-- `web` 目录提供前台页面和后台管理页面
-- `api` 目录提供 PHP 接口、数据库访问能力和文件服务
+如果你要的是一个“能立马搭起来”的靶场，这个仓库就是按这个方向整理的。
 
-项目适合作为课程设计、毕业设计、PHP 全栈练习项目，或作为一个轻量级新闻门户 / 内容管理系统的基础版本。
+## 项目定位
 
-## 项目特点
+你可以把它理解成：
 
-- 支持新闻列表浏览与新闻详情查看
-- 支持用户注册、登录、退出登录
-- 支持验证码校验
-- 支持邮箱验证码找回密码
-- 支持新闻新增、编辑、删除
-- 支持评论发布与评论管理
-- 支持用户信息查询与后台用户管理
-- 支持文件上传、文件列表展示与下载访问
-- 提供前台浏览页面与后台管理平台两套界面
+- 一个以“新闻系统”为壳子的 PHP Web 靶场
+- 一个适合练 SQL 注入、XSS、弱鉴权、上传问题的教学项目
+- 一个适合本地演示和练手的安全实验环境
 
-## 技术栈
+不建议把它当成正式后台系统、CMS 或企业项目模板使用。
 
-- 前端：HTML5、CSS3、JavaScript、jQuery
-- 后端：PHP
-- 数据库：MySQL
-- 邮件服务：PHPMailer
-- 交互方式：AJAX + JSON 接口
+## 当前仓库可练的方向
 
-## 目录结构
+结合现有代码，比较直观的练习点包括：
+
+- SQL 注入
+- 存储型 / 反射型 XSS
+- 验证码绕过
+- 弱鉴权与越权访问
+- 明文密码与弱口令风险
+- 任意文件上传 / 上传校验不足
+- 敏感配置硬编码
+- 前后端信任边界不清
+
+## 代码里已经存在的典型靶场特征
+
+- 多处接口直接拼接 SQL，没有参数化
+- 登录和注册都存在 `0000` 万能验证码逻辑
+- 用户密码以明文方式存储和比对
+- 部分写接口没有严格权限校验
+- 上传接口没有严格校验文件类型和内容
+- 数据库账号、跨域来源、默认资源地址存在硬编码
+- 前端页面直接拼接后端返回内容，存在 XSS 练习空间
+
+## 环境要求
+
+最小可运行环境：
+
+- PHP 7.4 及以上
+- MySQL 5.7 / 8.0
+- 支持 PHP 的 Web 运行方式
+- 推荐本地 Windows / Linux / macOS 环境
+
+PHP 建议开启这些扩展：
+
+- `mysqli`
+- `gd`
+
+说明：
+
+- `mysqli` 用于数据库连接
+- `gd` 用于生成验证码图片
+- 邮件找回密码功能依赖 SMTP 配置，但不是必须项，不配也能跑主流程
+
+## 目录说明
 
 ```text
-news/
-├─ api/                  # PHP 接口服务
-│  ├─ public/            # 公共配置、数据库工具、CORS、邮件组件
-│  ├─ upload/            # 上传文件存储目录
-│  ├─ login.php          # 登录接口
-│  ├─ register.php       # 注册接口
-│  ├─ addNew.php         # 新增新闻
-│  ├─ updateNewByid.php  # 编辑新闻
-│  ├─ deleteNewById.php  # 删除新闻
-│  ├─ getNewList.php     # 获取新闻列表
-│  ├─ getNewById.php     # 获取新闻详情
-│  ├─ addReview.php      # 新增评论
-│  ├─ getReviewList.php  # 评论管理列表
-│  ├─ getUserList.php    # 用户管理列表
-│  ├─ upload.php         # 文件上传
-│  ├─ download.php       # 文件列表 / 下载信息
-│  └─ forgetPassword_*.php # 找回密码流程
-└─ web/                  # 前端静态页面
-   ├─ index.html         # 新闻浏览首页
-   ├─ news_detail.html   # 新闻详情页
-   ├─ login.html         # 登录页
-   ├─ register.html      # 注册页
-   ├─ forgot-password.html # 找回密码页
-   ├─ home.html          # 后台首页
-   ├─ users.html         # 用户管理页
-   ├─ review.html        # 评论管理页
-   ├─ files.html         # 文件管理页
-   └─ js/index.js        # 前台首页脚本
+NewLab/
+├─ api/                  # PHP 接口、数据库连接、上传目录、邮件逻辑
+│  ├─ public/
+│  ├─ upload/
+│  ├─ login.php
+│  ├─ register.php
+│  ├─ addNew.php
+│  ├─ addReview.php
+│  ├─ addUser.php
+│  ├─ upload.php
+│  └─ ...
+├─ web/                  # 前端页面
+│  ├─ index.html
+│  ├─ login.html
+│  ├─ register.html
+│  ├─ home.html
+│  ├─ users.html
+│  ├─ review.html
+│  └─ js/
+└─ database/
+   └─ news.sql           # 初始化数据库脚本（含演示数据）
 ```
 
-## 功能模块
+## 10 分钟搭建
 
-### 1. 前台新闻浏览
+下面这套流程是为了让别人拿到仓库后能尽快跑起来。
 
-- 浏览新闻列表
-- 查看新闻详情
-- 登录后查看个人信息
-- 登录后可参与评论
+### 1. 下载项目
 
-### 2. 用户系统
+把项目放到本地任意目录即可，例如：
 
-- 用户注册
-- 用户登录
-- Cookie 维持登录状态
-- 验证码校验
-- 邮箱找回密码
+```text
+C:\Users\Sailboat\Desktop\NewLab
+```
 
-### 3. 新闻管理
+### 2. 配置本地域名
 
-- 发布新闻
-- 编辑新闻
-- 删除新闻
-- 按标题关键字搜索新闻
+这个项目的前端和后端代码里已经大量写死了下面两个地址：
 
-### 4. 评论管理
+- `http://www.new.com:8080` 对应前端
+- `http://www.new.com:8081` 对应后端
 
-- 用户对新闻发表评论
-- 后台查看评论列表
-- 删除评论
+所以最省事的做法不是全局改代码，而是直接配本地 `hosts`。
 
-### 5. 用户管理
+Windows：
 
-- 查看用户列表
-- 根据角色和状态筛选
-- 新增用户
-- 编辑用户信息
+1. 用管理员身份打开记事本或编辑器
+2. 编辑文件 `C:\Windows\System32\drivers\etc\hosts`
+3. 加入这一行：
 
-### 6. 文件管理
+```text
+127.0.0.1 www.new.com
+```
 
-- 上传图片或文件
-- 统计文件数量和总大小
-- 展示文件后缀、访问地址和文件大小
+Linux / macOS：
 
-## 页面说明
+编辑 `/etc/hosts`，加入同样一行：
 
-前台页面：
+```text
+127.0.0.1 www.new.com
+```
 
-- `index.html`：新闻门户首页
-- `news_detail.html`：普通用户新闻详情页
-- `login.html`：登录页
-- `register.html`：注册页
-- `forgot-password.html`：找回密码页
+### 3. 初始化数据库
 
-后台页面：
+仓库已经补了初始化脚本：
 
-- `home.html`：后台首页 / 仪表盘
-- `build.html`：新闻发布页面
-- `edit_new.html`：新闻编辑页面
-- `users.html`：用户管理页面
-- `add_user.html`：新增用户页面
-- `edit_user.html`：编辑用户页面
-- `review.html`：评论管理页面
-- `files.html`：文件管理页面
-- `news_detail_admin.html`：后台新闻详情页
+- [database/news.sql](C:\Users\Sailboat\Desktop\NewLab\database\news.sql)
 
-## 主要接口
+这个脚本会做这些事：
 
-### 用户相关
+- 创建 `news` 数据库
+- 重建 `users`、`new`、`reviews`、`email_code` 四张表
+- 插入默认管理员、普通用户、新闻和评论演示数据
 
-- `login.php`：用户登录
-- `logout.php`：退出登录
-- `register.php`：用户注册
-- `getUserById.php`：根据用户 ID 获取用户信息
-- `getUserList.php`：后台查询用户列表
-- `addUser.php`：后台新增用户
-- `forgetPassword_1.php`：发送邮箱验证码
-- `forgetPassword_2.php`：校验邮箱验证码
-- `forgetPassword_3.php`：重置密码
+如果你是全新环境，直接导入即可。
 
-### 新闻相关
+MySQL 命令行导入示例：
 
-- `getNewList.php`：获取新闻列表
-- `getNewById.php`：获取新闻详情
-- `addNew.php`：新增新闻
-- `updateNewByid.php`：更新新闻
-- `deleteNewById.php`：删除新闻
-- `getNewTotle.php`：统计新闻总数
+```powershell
+cd C:\Users\Sailboat\Desktop\NewLab
+mysql -uroot -p < .\database\news.sql
+```
 
-### 评论相关
+如果你用的是 Navicat、DBeaver、Workbench，也可以直接打开 `database/news.sql` 执行。
 
-- `addReview.php`：新增评论
-- `getReviewByNid.php`：根据新闻 ID 获取评论
-- `getReviewList.php`：后台评论列表
-- `deleteReviewById.php`：删除评论
-- `getReviewTotle.php`：统计评论总数
+注意：
 
-### 文件相关
+- 这个脚本会重建基础表，适合首次初始化或重置靶场数据
+- 如果你的 MySQL 账号没有建库权限，请先手动创建 `news` 数据库，再执行脚本中的建表和插入部分
 
-- `upload.php`：上传文件
-- `download.php`：获取上传目录文件列表
+### 4. 修改数据库连接
 
-## 数据库设计说明
+编辑：
 
-根据接口逻辑，项目至少依赖以下数据表：
+- [config.php](C:\Users\Sailboat\Desktop\NewLab\api\public\config.php)
 
-- `users`：用户表
-- `new`：新闻表
-- `reviews`：评论表
-- `email_code`：邮箱验证码表
-
-仓库当前未包含现成的 SQL 建表脚本，因此在本地部署时需要根据接口字段自行建表，或者结合接口中的 SQL 语句反推表结构。
-
-## 快速开始
-
-### 1. 准备环境
-
-- PHP 7.x 或更高版本
-- MySQL 5.7 / 8.0
-- Apache、Nginx 或 PHP 集成环境
-
-### 2. 配置数据库
-
-编辑 `api/public/config.php`，设置你自己的数据库连接信息：
+把数据库账号密码改成你自己的：
 
 ```php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASSWORD', 'your_password');
-define('DB_NAME', 'news');
-define('DB_PORT', 3306);
+define('DB_HOST','localhost');
+define('DB_USER','root');
+define('DB_PASSWORD','你的数据库密码');
+define('DB_NAME','news');
+define('DB_PORT',3306);
 ```
 
-### 3. 配置接口访问域名
+### 5. 可选：配置邮件找回密码
 
-项目中前后端地址使用了固定域名配置，需要根据本地环境调整：
+如果你只想先把靶场跑起来，这一步可以先跳过。  
+如果你想让“找回密码”功能正常工作，再去改：
 
-- `api/public/cors.php` 中默认允许的前端来源为 `http://www.new.com:8080`
-- 前端页面中的 AJAX 请求默认指向 `http://www.new.com:8081`
+- [sendEmail.php](C:\Users\Sailboat\Desktop\NewLab\api\sendEmail.php)
 
-如果你本地没有配置该域名，请按你的实际访问地址统一修改前端接口地址和后端跨域设置。
+你至少要替换这几个值：
 
-### 4. 配置邮件服务
+- `Username`
+- `Password`
+- `From`
 
-找回密码功能依赖 PHPMailer 和 SMTP 邮箱配置，请根据自己的邮箱服务修改 `api/sendEmail.php` 中的发件配置。
+当前代码默认按 QQ 邮箱 SMTP 写的：
 
-建议将邮箱账号、授权码等敏感信息改为环境变量或单独配置文件，不要直接写入仓库。
+- 服务器：`smtp.qq.com`
+- 端口：`465`
+- 加密：`ssl`
 
-### 5. 启动项目
+不配邮件也不会影响登录、注册、新闻、评论、上传这些主流程。
 
-你可以将：
+### 6. 启动前端和后端
 
-- `web` 部署到静态站点或本地 Web 服务
-- `api` 部署到支持 PHP 的 Web 服务
+这个项目前端是静态页面，后端是 PHP 接口。  
+最简单的启动方式是直接用 PHP 内置服务器开两个端口。
 
-确保：
+终端 1：启动前端
 
-- 前端可正常访问 HTML 页面
-- 后端 PHP 接口可被前端跨域调用
-- `api/upload` 目录具备写入权限
+```powershell
+cd C:\Users\Sailboat\Desktop\NewLab\web
+php -S 127.0.0.1:8080
+```
 
-## 适用场景
+终端 2：启动后端
 
-- PHP 课程设计项目
-- 新闻管理系统练习项目
-- 后台管理系统练手项目
-- 基础内容管理系统原型
+```powershell
+cd C:\Users\Sailboat\Desktop\NewLab\api
+php -S 127.0.0.1:8081
+```
 
-## 当前项目可优化点
+如果你更习惯 Apache / Nginx / phpStudy / XAMPP，也可以：
 
-从现有代码结构来看，这个项目已经具备完整业务闭环，但如果继续完善，建议优先处理以下方向：
+- 把 `web` 作为前端站点根目录，跑在 `8080`
+- 把 `api` 作为 PHP 站点根目录，跑在 `8081`
 
-- 将数据库和邮箱敏感配置迁移到环境变量
-- 为 SQL 操作增加参数化查询，减少注入风险
-- 完善输入校验与异常处理
-- 补充数据库初始化脚本
-- 统一接口命名规范，例如 `Totle` 可调整为 `Total`
-- 将前端公共样式和脚本进一步模块化
+### 7. 首次访问
 
-## 声明
+启动后，优先访问这些页面：
 
-本 README 基于仓库当前代码结构、页面文件、接口文件和业务逻辑整理而成，适合直接作为 GitHub 项目首页说明使用。
+- 前台首页：[http://www.new.com:8080/index.html](http://www.new.com:8080/index.html)
+- 登录页：[http://www.new.com:8080/login.html](http://www.new.com:8080/login.html)
+- 注册页：[http://www.new.com:8080/register.html](http://www.new.com:8080/register.html)
+- 后端接口样例：[http://www.new.com:8081/getNewList.php?search=](http://www.new.com:8081/getNewList.php?search=)
+
+## 默认账号与测试数据
+
+导入 `database/news.sql` 后，默认会有这些数据：
+
+- 管理员账号：`admin`
+- 管理员密码：`123456`
+- 普通用户账号：`test`
+- 普通用户密码：`123456`
+- 万能验证码：`0000`
+
+说明：
+
+- `admin` 登录后会跳到后台 `home.html`
+- 普通用户登录后会跳到前台 `index.html`
+- 数据库里已经带了新闻、评论和头像地址，导入后页面不会是空的
+
+## 启动后怎么判断是否成功
+
+你可以按这个顺序快速验收：
+
+1. 打开登录页，验证码图片能正常显示
+2. 用 `admin / 123456 / 0000` 登录成功
+3. 成功跳转到后台首页 `home.html`
+4. 打开前台首页时能看到新闻列表
+5. 打开新闻详情页时能看到评论
+6. 文件管理页能列出 `api/upload` 目录下的文件
+
+只要上面这几步正常，说明这个靶场已经基本搭起来了。
+
+## 常见问题排查
+
+### 1. 页面能打开，但 AJAX 全部报错
+
+优先检查这三件事：
+
+- `hosts` 里有没有 `127.0.0.1 www.new.com`
+- 后端是不是跑在 `8081`
+- [cors.php](C:\Users\Sailboat\Desktop\NewLab\api\public\cors.php) 里的来源是不是和前端地址一致
+
+### 2. 登录页验证码不显示
+
+通常是 PHP `gd` 扩展没开。  
+验证码接口在：
+
+- [captcha.php](C:\Users\Sailboat\Desktop\NewLab\api\captcha.php)
+
+### 3. 登录时报数据库连接失败
+
+检查：
+
+- [config.php](C:\Users\Sailboat\Desktop\NewLab\api\public\config.php) 的账号密码
+- MySQL 服务是否已启动
+- `news` 数据库是否已经导入成功
+
+### 4. 找回密码用不了
+
+这是正常的，如果你还没配 SMTP。  
+先把其它核心功能跑通，再决定要不要配置：
+
+- [sendEmail.php](C:\Users\Sailboat\Desktop\NewLab\api\sendEmail.php)
+
+### 5. 页面里图片是破图
+
+请确认后端接口是从 `api` 目录启动的，并且下面目录可访问：
+
+- [upload](C:\Users\Sailboat\Desktop\NewLab\api\upload)
+
+### 6. 想不用 `www.new.com`，直接改成 `localhost`
+
+可以，但要同时改两类地方：
+
+- `web` 目录里所有写死的 `http://www.new.com:8081`
+- [cors.php](C:\Users\Sailboat\Desktop\NewLab\api\public\cors.php) 里的允许来源
+
+如果只是为了尽快跑起来，直接改 `hosts` 会更省时间。
+
+## 适合的使用场景
+
+- Web 安全课程作业
+- PHP 代码审计练习
+- 漏洞复现演示
+- 本地靶场搭建
+- 入门级攻防练手
+
+## 使用提醒
+
+- 请只在本地、隔离网络或授权测试环境中使用
+- 仓库里存在明显不安全实现，不要直接暴露到公网
+- 这就是靶场，不是生产模板
+- 如果你后续想做“修复版”，建议另开分支，不要直接把靶场特征改没
+
+## 一句话总结
+
+这是一个 **“新闻业务壳子 + 常见 Web 漏洞练习点 + 可快速本地搭建”** 的 PHP 靶场项目。  
+重点应该放在审计、复现、利用和修复思路，而不是把它包装成成熟的后台管理系统。
